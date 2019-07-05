@@ -37,8 +37,9 @@ namespace TabPRO.Editor {
 			else {
 				items.Clear();
 			}
-			string path_pattern = "Icons/{0}/{1}";
-			string dynamic_folder = EditorGUIUtility.isProSkin ? "Light" : "Dark";
+
+			var path_pattern = "Icons/{0}/{1}";
+			var dynamic_folder = EditorGUIUtility.isProSkin ? "Light" : "Dark";
 
 			foreach (string name in DEFAULT_WINDOW_TYPES) {
 				var path = string.Format(path_pattern, dynamic_folder, name.Replace('.', '_'));

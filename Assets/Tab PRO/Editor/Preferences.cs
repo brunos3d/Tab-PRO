@@ -33,7 +33,7 @@ namespace TabPRO.Editor {
 
 		public static bool inspectorFocus {
 			get {
-				return EditorPrefs.GetBool(INSPECTOR_FOCUS_PREFS, true);
+				return EditorPrefs.GetBool(INSPECTOR_FOCUS_PREFS, false);
 			}
 			set {
 				EditorPrefs.SetBool(INSPECTOR_FOCUS_PREFS, value);

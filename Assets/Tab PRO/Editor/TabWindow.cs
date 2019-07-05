@@ -116,16 +116,16 @@ namespace TabPRO.Editor {
 
 		private void LoadResources() {
 			if (!resources_loaded) {
-				string path_pattern = "Icons/{0}/{1}";
-				string dynamic_folder = EditorGUIUtility.isProSkin ? "Light" : "Dark";
-
-				tab_menu = Resources.Load<TabMenu>("DefaultTabMenu");
-
 				window = this;
 
+				var path_pattern = "Icons/{0}/{1}";
+				var dynamic_folder = EditorGUIUtility.isProSkin ? "Light" : "Dark";
 				var path = string.Format(path_pattern, dynamic_folder, "TabPRO_Settings_Icon");
 				var icon = Resources.Load<Texture>(path);
+
 				settings_content = new GUIContent(icon, "Open Preferences > Tab PRO > Settings");
+
+				tab_menu = Resources.Load<TabMenu>("DefaultTabMenu");
 
 				resources_loaded = true;
 			}
@@ -154,6 +154,7 @@ namespace TabPRO.Editor {
 			for (int id = 0; id < tab_menu.items.Count; id++) {
 				var rect = new Rect(position.width / 2.0f - Preferences.buttonTabSize / 2.0f, id * (Preferences.buttonTabSize + Preferences.buttonPadding), Preferences.buttonTabSize, Preferences.buttonTabSize);
 
+				// Active/Deactive tab button 
 				if (current_dock != id && !rect.Contains(current_event.mousePosition)) {
 					GUI.color = new Color(bkp_color.r, bkp_color.g, bkp_color.b, 0.5f);
 				}

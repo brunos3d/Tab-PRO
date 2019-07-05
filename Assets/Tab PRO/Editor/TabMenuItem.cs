@@ -1,7 +1,5 @@
-﻿
-#if UNITY_EDITOR
-using System.Collections;
-using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using UnityEditor;
 using UnityEngine;
 
 namespace TabPRO.Editor {
@@ -20,6 +18,8 @@ namespace TabPRO.Editor {
 		public ItemAction action;
 
 		public string data;
+
+		public TabMenuItem() { }
 
 		public TabMenuItem(GUIContent content, ItemAction action, string data) {
 			this.data = data;
