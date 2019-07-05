@@ -54,9 +54,6 @@ namespace TabPRO.Editor {
 
 			tab_reorder_list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) => {
 				var menu_item = tab_menu.items[index];
-				if (isActive) {
-					selected_index = index;
-				}
 				GUI.Label(rect, menu_item.content.image);
 				GUI.Label(new Rect(rect.x + 30, rect.y, rect.width - 60, EditorGUIUtility.singleLineHeight), menu_item.content.tooltip);
 			};
@@ -122,7 +119,7 @@ namespace TabPRO.Editor {
 
 					GUILayout.BeginVertical(GUI.skin.box);
 					{
-						selected_index = Mathf.Clamp(selected_index, 0, tab_menu.items.Count);
+						selected_index = Mathf.Clamp(tab_reorder_list.index, 0, tab_menu.items.Count);
 
 						// Second pass to avoid "ArgumentOutOfRangeException" error
 						if (tab_menu.items.Count > 0) {
