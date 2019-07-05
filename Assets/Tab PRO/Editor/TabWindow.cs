@@ -178,7 +178,7 @@ namespace TabPRO.Editor {
 
 				// Settings Button
 				if (GUI.Button(rect, settings_content, GUI.skin.label)) {
-					OpenTabWindow(-1, typeof(Preferences));
+					OpenTabWindow(-1, typeof(PreferencesWindow));
 				}
 				GUI.color = bkp_color;
 			}
