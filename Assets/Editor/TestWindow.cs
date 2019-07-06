@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using View = UnityEngine.ScriptableObject;
+using MainView = UnityEngine.ScriptableObject;
+using ContainerWindow = UnityEngine.ScriptableObject;
 using TabPRO.Editor;
 
 public class TestWindow : EditorWindow {
@@ -13,7 +16,43 @@ public class TestWindow : EditorWindow {
 		GetWindow<TestWindow>();
 	}
 
-	[MenuItem("Tools/MainView Full %#F1")]
+	[MenuItem("Tools/MainView Full %g")]
+	private static void DoAction() {
+		var window = GetWindow<TestWindow>();
+		var cur_view = window.GetFieldValue("m_Parent");
+
+		var mainview = typeof(Editor).Assembly.GetType("UnityEditor.MainView");
+		var instance = Resources.FindObjectsOfTypeAll(mainview)[0];
+
+		var new_mainview = CreateInstance(mainview);
+
+		SwapViews((View)cur_view, (View)instance);
+	}
+
+	protected static void SwapViews(View a, View b) {
+		var containerA = a.GetPropertyValue<ContainerWindow>("window");
+		var containerB = b.GetPropertyValue<ContainerWindow>("window");
+
+		SetFreezeContainer(containerA, true);
+		SetFreezeContainer(containerB, true);
+
+		containerA.SetPropertyValue("rootView", b);
+		containerB.SetPropertyValue("rootView", a);
+
+		SetFreezeContainer(containerA, true);
+		SetFreezeContainer(containerB, true);
+	}
+
+	protected static void SetFreezeContainer(ContainerWindow containerWindow, bool freeze) {
+		containerWindow.InvokeMethod("SetFreezeDisplay", freeze);
+	}
+
+	private void OnGUI() {
+	}
+
+	private void OnFocus() {
+	}
+
 	private static void FullScreen() {
 		fullscreen = !fullscreen;
 		int width = Screen.currentResolution.width;
@@ -33,6 +72,6 @@ public class TestWindow : EditorWindow {
 	private static void MainViewSetPosition(Rect position) {
 		var mainview = typeof(Editor).Assembly.GetType("UnityEditor.MainView");
 		var instance = Resources.FindObjectsOfTypeAll(mainview)[0];
-		mainview.InvokeMethodFrom("SetPosition", instance, position);
+		mainview.InvokeMethod("SetPosition", instance, position);
 	}
 }

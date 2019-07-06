@@ -100,9 +100,11 @@ namespace TabPRO.Editor {
 			window.minSize = Vector2.zero;
 			window.ShowPopup();
 
-			window.position = new Rect(0.0f, 44.0f, Preferences.tabWindowWidth, height - 83.0f);
+			var mainview_pos = MainViewGetPosition();
 
-			var rect = new Rect(Preferences.tabWindowWidth, 0.0f, width - Preferences.tabWindowWidth, height - 83.0f);
+			window.position = new Rect(mainview_pos.x, mainview_pos.y, Preferences.tabWindowWidth, mainview_pos.height);
+
+			var rect = new Rect(Preferences.tabWindowWidth, 0.0f, width - Preferences.tabWindowWidth, mainview_pos.height);
 			MainViewSetPosition(rect);
 		}
 
@@ -296,7 +298,7 @@ namespace TabPRO.Editor {
 						case "UnityEditor.ProjectBrowser":
 							if (Preferences.projectViewMode == 0) {
 								EditorApplication.delayCall += () => {
-									type.InvokeMethodFrom("SetOneColumn", container);
+									container.InvokeMethod("SetOneColumn");
 								};
 							}
 							break;
@@ -329,7 +331,13 @@ namespace TabPRO.Editor {
 		private static void MainViewSetPosition(Rect position) {
 			var mainview = typeof(Editor).Assembly.GetType("UnityEditor.MainView");
 			var instance = Resources.FindObjectsOfTypeAll(mainview)[0];
-			mainview.InvokeMethodFrom("SetPosition", instance, position);
+			instance.InvokeMethod("SetPosition", position);
+		}
+
+		private static Rect MainViewGetPosition() {
+			var mainview = typeof(Editor).Assembly.GetType("UnityEditor.MainView");
+			var instance = Resources.FindObjectsOfTypeAll(mainview)[0];
+			return instance.GetPropertyValue<Rect>("screenPosition");
 		}
 	}
 }
