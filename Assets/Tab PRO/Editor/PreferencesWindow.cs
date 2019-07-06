@@ -15,11 +15,13 @@ namespace TabPRO.Editor {
 
 		private static readonly string[] PROJECT_SHOW_MODE_OPTIONS = { "One Column", "Two Columns" };
 
-		private static TabMenu tab_menu;
+		private int selected_index;
 
-		private static int selected_index;
+		private Vector2 scroll;
 
-		public static ReorderableList tab_reorder_list;
+		private TabMenu tab_menu;
+
+		public ReorderableList tab_reorder_list;
 
 
 		[InitializeOnLoadMethod]
@@ -77,7 +79,8 @@ namespace TabPRO.Editor {
 
 		private void OnGUI() {
 			// Preferences GUI
-			bool bkp_rt = GUI.skin.label.richText;
+			bool bkp_label_rt = GUI.skin.label.richText;
+
 			GUI.skin.label.richText = true;
 
 			var layout_rect = new Rect(10.0f, 10.0f, position.width - 20.0f, position.height - 20.0f);
@@ -85,56 +88,73 @@ namespace TabPRO.Editor {
 			// Canvas to draw layout elements
 			GUILayout.BeginArea(layout_rect);
 			{
-				// Title
-				GUILayout.Label("<size=18>Preferences</size>");
-
-				EditorGUILayout.Separator();
-
-				enableTab = EditorGUILayout.Toggle(new GUIContent("Enable Tab PRO"), enableTab);
-
-				if (!enableTab) {
-					EditorGUILayout.HelpBox(@"When closing this window the tab will be closed, because the ""enableTab"" option was disabled!", MessageType.Warning);
-					GUILayout.Space(10.0f);
-				}
-
-				EditorGUILayout.Separator();
-
-				inspectorFocus = EditorGUILayout.Toggle(new GUIContent("Inspector Focus"), inspectorFocus);
-				projectShowMode = EditorGUILayout.Popup(new GUIContent("Project Show Mode:"), projectShowMode, PROJECT_SHOW_MODE_OPTIONS);
-
-				EditorGUILayout.Separator();
-
-				tabWindowWidth = EditorGUILayout.IntSlider(new GUIContent("Tab Window Width:"), tabWindowWidth, 20, 200);
-				dockWindowWidth = EditorGUILayout.IntSlider(new GUIContent("Dock Window Width:"), dockWindowWidth, 200, 600);
-
-				EditorGUILayout.Separator();
-
-				buttonPadding = EditorGUILayout.Slider(new GUIContent("Button Padding:"), buttonPadding, 0.0f, 50.0f);
-				buttonTabSize = EditorGUILayout.Slider(new GUIContent("Button Tab Size:"), buttonTabSize, 15.0f, 190.0f);
-
-				EditorGUILayout.Separator();
-
-				if (tab_menu.items.Count > 0) {
-					tab_reorder_list.DoLayoutList();
-
-					GUILayout.BeginVertical(GUI.skin.box);
-					{
-						selected_index = Mathf.Clamp(tab_reorder_list.index, 0, tab_menu.items.Count);
-
-						// Second pass to avoid "ArgumentOutOfRangeException" error
-						if (tab_menu.items.Count > 0) {
-							tab_menu.items[selected_index].content.image = (Texture)EditorGUILayout.ObjectField(new GUIContent("Item Icon"), tab_menu.items[selected_index].content.image, typeof(Texture), false);
-							tab_menu.items[selected_index].content.text = EditorGUILayout.TextField(new GUIContent("Item Label"), tab_menu.items[selected_index].content.text);
-							tab_menu.items[selected_index].content.tooltip = EditorGUILayout.TextField(new GUIContent("Item Tooltip"), tab_menu.items[selected_index].content.tooltip);
-							tab_menu.items[selected_index].action = (ItemAction)EditorGUILayout.EnumPopup(new GUIContent("Item Action"), tab_menu.items[selected_index].action);
-							GUILayout.Label(new GUIContent("Item Action Data:"));
-							tab_menu.items[selected_index].data = EditorGUILayout.TextArea(tab_menu.items[selected_index].data);
-						}
-					}
-					GUILayout.EndVertical();
+				scroll = GUILayout.BeginScrollView(scroll);
+				{
+					// Title
+					GUILayout.Label("<size=18>Preferences</size>");
 
 					EditorGUILayout.Separator();
+
+					enableTab = EditorGUILayout.Toggle(new GUIContent("Enable Tab PRO (Ctrl+T)"), enableTab);
+
+					if (!enableTab) {
+						EditorGUILayout.HelpBox(@"When closing this window the tab will be closed, because the ""enableTab"" option was disabled!", MessageType.Warning);
+						GUILayout.Space(10.0f);
+					}
+
+					EditorGUILayout.Separator();
+
+					inspectorAutoFocus = EditorGUILayout.Toggle(new GUIContent("Inspector Auto-Focus:"), inspectorAutoFocus);
+					projectViewMode = EditorGUILayout.Popup(new GUIContent("Project View Mode:"), projectViewMode, PROJECT_SHOW_MODE_OPTIONS);
+
+					EditorGUILayout.Separator();
+
+					tabWindowWidth = EditorGUILayout.IntSlider(new GUIContent("Tab Window Width:"), tabWindowWidth, 20, 200);
+					dockedWindowWidth = EditorGUILayout.IntSlider(new GUIContent("Docked Window Width:"), dockedWindowWidth, 200, 600);
+
+					EditorGUILayout.Separator();
+
+					EditorGUILayout.LabelField(new GUIContent("Tab Button:"));
+
+					EditorGUI.indentLevel++;
+
+					buttonPadding = EditorGUILayout.Slider(new GUIContent("Padding"), buttonPadding, 0.0f, 50.0f);
+					buttonTabSize = EditorGUILayout.Slider(new GUIContent("Tab Size"), buttonTabSize, 15.0f, 190.0f);
+
+					EditorGUI.indentLevel--;
+
+					EditorGUILayout.Separator();
+
+					if (tab_menu.items.Count > 0) {
+						tab_reorder_list.DoLayoutList();
+
+						selected_index = Mathf.Clamp(tab_reorder_list.index, 0, tab_menu.items.Count);
+						EditorGUILayout.LabelField(new GUIContent("Item:"));
+
+						GUILayout.BeginVertical(GUI.skin.box);
+						{
+							// Second pass to avoid "ArgumentOutOfRangeException" error
+							if (tab_menu.items.Count > 0) {
+
+								EditorGUI.indentLevel++;
+
+								tab_menu.items[selected_index].content.image = (Texture)EditorGUILayout.ObjectField(new GUIContent("Icon"), tab_menu.items[selected_index].content.image, typeof(Texture), false);
+								tab_menu.items[selected_index].content.text = EditorGUILayout.TextField(new GUIContent("Label"), tab_menu.items[selected_index].content.text);
+								tab_menu.items[selected_index].content.tooltip = EditorGUILayout.TextField(new GUIContent("Tooltip"), tab_menu.items[selected_index].content.tooltip);
+								GUILayout.Label(new GUIContent("Action:"));
+								tab_menu.items[selected_index].action = (ItemAction)EditorGUILayout.EnumPopup(new GUIContent("Value"), tab_menu.items[selected_index].action);
+								EditorGUILayout.LabelField(new GUIContent("Data:"));
+								tab_menu.items[selected_index].data = EditorGUILayout.TextField(tab_menu.items[selected_index].data);
+
+								EditorGUI.indentLevel--;
+							}
+						}
+						GUILayout.EndVertical();
+					}
 				}
+				GUILayout.EndScrollView();
+
+				EditorGUILayout.Space(10.0f);
 
 				if (GUILayout.Button(new GUIContent("Use Defaults"), GUILayout.ExpandWidth(false))) {
 					DeleteAllPreferences();
@@ -143,7 +163,7 @@ namespace TabPRO.Editor {
 			}
 			GUILayout.EndArea();
 
-			GUI.skin.label.richText = bkp_rt;
+			GUI.skin.label.richText = bkp_label_rt;
 		}
 	}
 }

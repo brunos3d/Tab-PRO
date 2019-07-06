@@ -13,6 +13,8 @@ namespace TabPRO.Editor {
 	[System.Serializable]
 	public class TabMenuItem {
 
+		public string dynamic_icon;
+
 		public GUIContent content;
 
 		public ItemAction action;
@@ -25,14 +27,6 @@ namespace TabPRO.Editor {
 			this.data = data;
 			this.action = action;
 			this.content = content;
-		}
-
-		public void Execute() {
-			switch (action) {
-				case ItemAction.OpenWindow:
-
-					break;
-			}
 		}
 	}
 }

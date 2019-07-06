@@ -13,33 +13,45 @@ MonoBehaviour:
   m_Name: DefaultTabMenu
   m_EditorClassIdentifier: 
   items:
-  - content:
+  - dynamic_icon: 
+    content:
       m_Text: 
-      m_Image: {fileID: 2800000, guid: 2c0957bc1c517244ab0776b05090830e, type: 3}
+      m_Image: {fileID: 2800000, guid: ab973e2f1a44a3b44b4ce1007e7c69c3, type: 3}
       m_Tooltip: Open ProjectBrowser
     action: 0
     data: UnityEditor.ProjectBrowser
-  - content:
+  - dynamic_icon: 
+    content:
       m_Text: 
-      m_Image: {fileID: 2800000, guid: d22544b7bdb21e14aab15b75681a5d2e, type: 3}
+      m_Image: {fileID: 2800000, guid: 626ef6e32e1b45148b2ca0585d5f06d0, type: 3}
       m_Tooltip: Open SceneHierarchyWindow
     action: 0
     data: UnityEditor.SceneHierarchyWindow
-  - content:
+  - dynamic_icon: 
+    content:
       m_Text: 
-      m_Image: {fileID: 2800000, guid: 3b06da97e054e4c4fb47d27700338bb1, type: 3}
+      m_Image: {fileID: 2800000, guid: 341f24fd03159b04fb80f26918059294, type: 3}
       m_Tooltip: Open InspectorWindow
     action: 0
     data: UnityEditor.InspectorWindow
-  - content:
+  - dynamic_icon: 
+    content:
       m_Text: 
-      m_Image: {fileID: 2800000, guid: 9637d4be45007fd4f89bbdabcb6b4cac, type: 3}
+      m_Image: {fileID: 2800000, guid: 62e4f51bb65d78f4dab6b1788e3f1d6a, type: 3}
       m_Tooltip: Open LightingWindow
     action: 0
     data: UnityEditor.LightingWindow
-  - content:
+  - dynamic_icon: 
+    content:
       m_Text: 
-      m_Image: {fileID: 2800000, guid: 268f746ab19d3f34193a64b53ddbb290, type: 3}
+      m_Image: {fileID: 2800000, guid: 27bcfe189e9316d4791bdf0dd96b9b7b, type: 3}
       m_Tooltip: Open NavMeshEditorWindow
     action: 0
     data: UnityEditor.NavMeshEditorWindow
+  - dynamic_icon: 
+    content:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: 1c5a8b142acffa347b44cf6c35697a21, type: 3}
+      m_Tooltip: Open PackageManager Window
+    action: 2
+    data: Window/Package Manager

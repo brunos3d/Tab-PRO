@@ -22,6 +22,11 @@ namespace TabPRO.Editor {
 		private GUIContent settings_content;
 
 		[SerializeField]
+		private float scroll;
+
+		private bool drag_scroll;
+
+		[SerializeField]
 		private EditorWindow m_container;
 
 		private static EditorWindow container {
@@ -132,7 +137,7 @@ namespace TabPRO.Editor {
 		}
 
 		private void OnSelectionChange() {
-			if (Preferences.inspectorFocus) {
+			if (Preferences.inspectorAutoFocus) {
 				for (int id = 0; id < tab_menu.items.Count; id++) {
 					var item = tab_menu.items[id];
 					if (current_dock != id && item.action == ItemAction.OpenTabWindow && item.data == "UnityEditor.InspectorWindow") {
@@ -148,11 +153,31 @@ namespace TabPRO.Editor {
 				LoadResources();
 			}
 
+			OnInputGUI();
+
+			var button_tab_size = Preferences.buttonTabSize;
+			var button_padding_size = (button_tab_size + Preferences.buttonPadding);
+
+			var tab_items_view = new Rect(0.0f, 0.0f, position.width, position.height - button_tab_size - 10.0f);
+			var scroll_rect = new Rect(position.width - 10.0f, 0.0f, 10.0f, tab_items_view.height);
+
+			var scroll_max = tab_menu.items.Count * button_padding_size;
+			var scroll_unit = (scroll_max / scroll_rect.height) * button_padding_size;
+
+			if (scroll_max / scroll_rect.height >= 1.0f) {
+				scroll = GUI.VerticalScrollbar(scroll_rect, scroll, scroll_unit, 0.0f, scroll_max);
+			}
+			else {
+				scroll = 0.0f;
+			}
+
+			GUI.BeginClip(tab_items_view);
+
 			var bkp_color = GUI.color;
 			var current_event = Event.current;
 
 			for (int id = 0; id < tab_menu.items.Count; id++) {
-				var rect = new Rect(position.width / 2.0f - Preferences.buttonTabSize / 2.0f, id * (Preferences.buttonTabSize + Preferences.buttonPadding), Preferences.buttonTabSize, Preferences.buttonTabSize);
+				var rect = new Rect(position.width / 2.0f - button_tab_size / 2.0f, id * button_padding_size - scroll, button_tab_size, button_tab_size);
 
 				// Active/Deactive tab button 
 				if (current_dock != id && !rect.Contains(current_event.mousePosition)) {
@@ -160,7 +185,7 @@ namespace TabPRO.Editor {
 				}
 
 				// Draw Tab Buttons
-				if (GUI.Button(rect, tab_menu.items[id].content, GUI.skin.label)) {
+				if (GUI.Button(rect, tab_menu.items[id].content, GUI.skin.label) && !drag_scroll) {
 					ExecuteMenuItem(id);
 					//OpenTabWindow(dock_id);
 				}
@@ -171,20 +196,33 @@ namespace TabPRO.Editor {
 			// In case of loop break
 			GUI.color = bkp_color;
 
+			GUI.EndClip();
+
 			{
-				var rect = new Rect(position.width / 2.0f - Preferences.buttonTabSize / 2.0f, position.height - Preferences.buttonTabSize - 10.0f, Preferences.buttonTabSize, Preferences.buttonTabSize);
+				var rect = new Rect(position.width / 2.0f - button_tab_size / 2.0f, position.height - button_tab_size - 10.0f, button_tab_size, button_tab_size);
 				if (!rect.Contains(current_event.mousePosition)) {
 					GUI.color = new Color(bkp_color.r, bkp_color.g, bkp_color.b, 0.5f);
 				}
 
 				// Settings Button
-				if (GUI.Button(rect, settings_content, GUI.skin.label)) {
+				if (GUI.Button(rect, settings_content, GUI.skin.label) && !drag_scroll) {
 					OpenTabWindow(-1, typeof(PreferencesWindow));
 				}
 				GUI.color = bkp_color;
 			}
 
 			Repaint();
+		}
+
+		private void OnInputGUI() {
+			Event current_event = Event.current;
+			if (current_event.type == EventType.MouseDown) {
+				drag_scroll = false;
+			}
+			if (current_event.type == EventType.MouseDrag) {
+				scroll -= current_event.delta.y;
+				drag_scroll = true;
+			}
 		}
 
 		private static void CloseAllTabs() {
@@ -204,7 +242,7 @@ namespace TabPRO.Editor {
 				if (instance == null) continue;
 				// Window width is used to identify DOCK instance
 				// Window titleContent is used to identify DOCK instance
-				if (instance.position.width == Preferences.dockWindowWidth + DOCK_ID || instance.titleContent.text == "Tab Dock") {
+				if (instance.position.width == Preferences.dockedWindowWidth + DOCK_ID || instance.titleContent.text == "Tab Dock") {
 					instance.Close();
 				}
 			}
@@ -229,10 +267,13 @@ namespace TabPRO.Editor {
 		private static void OpenTabWindow(int index, Type type) {
 			CloseAllTabs();
 
+			var tab_window_width = Preferences.tabWindowWidth;
+			var dock_window_width = Preferences.dockedWindowWidth;
+
 			// Close Current
 			if (current_dock == index) {
 				current_dock = -2;
-				var rect = new Rect(Preferences.tabWindowWidth, 0.0f, width - Preferences.tabWindowWidth, height - 83.0f);
+				var rect = new Rect(tab_window_width, 0.0f, width - tab_window_width, height - 83.0f);
 				MainViewSetPosition(rect);
 			}
 			// Open new/other DOCK
@@ -243,7 +284,7 @@ namespace TabPRO.Editor {
 				container.ShowPopup();
 				container.titleContent = new GUIContent("Tab Dock");
 				// Window width is used to identify DOCK instance
-				container.position = new Rect(window.position.xMax + 1.0f, window.position.y, Preferences.dockWindowWidth + DOCK_ID, window.position.height);
+				container.position = new Rect(window.position.xMax + 1.0f, window.position.y, dock_window_width + DOCK_ID, window.position.height);
 
 				if (index > -2) {
 					switch (type.FullName) {
@@ -253,7 +294,7 @@ namespace TabPRO.Editor {
 							}
 							break;
 						case "UnityEditor.ProjectBrowser":
-							if (Preferences.projectShowMode == 0) {
+							if (Preferences.projectViewMode == 0) {
 								EditorApplication.delayCall += () => {
 									type.InvokeMethodFrom("SetOneColumn", container);
 								};
@@ -264,7 +305,7 @@ namespace TabPRO.Editor {
 				}
 
 				// 1 = window border
-				var rect = new Rect(Preferences.dockWindowWidth + DOCK_ID + 1 + Preferences.tabWindowWidth, 0.0f, width - (Preferences.dockWindowWidth + DOCK_ID + Preferences.tabWindowWidth), height - 1 - 83.0f);
+				var rect = new Rect(dock_window_width + DOCK_ID + 1 + tab_window_width, 0.0f, width - (dock_window_width + DOCK_ID + tab_window_width), height - 1 - 83.0f);
 				MainViewSetPosition(rect);
 			}
 		}
