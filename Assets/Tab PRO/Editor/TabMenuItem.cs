@@ -5,7 +5,7 @@ using UnityEngine;
 namespace TabPRO.Editor {
 	public enum ItemAction {
 		OpenTabWindow,
-		OpenWindow,
+		FocusWindowIfItsOpen,
 		ExecuteMenuItem,
 		SelectAsset
 	}

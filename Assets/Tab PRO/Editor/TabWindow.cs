@@ -260,6 +260,9 @@ namespace TabPRO.Editor {
 				case ItemAction.ExecuteMenuItem:
 					EditorApplication.ExecuteMenuItem(item.data);
 					break;
+				case ItemAction.FocusWindowIfItsOpen:
+					FocusWindowIfItsOpen(GetWindowType(item.data));
+					break;
 				case ItemAction.SelectAsset:
 					Selection.activeInstanceID = int.Parse(item.data);
 					break;
