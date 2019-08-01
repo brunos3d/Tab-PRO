@@ -154,7 +154,7 @@ namespace TabPRO.Editor {
 				}
 				GUILayout.EndScrollView();
 
-				EditorGUILayout.Space(10.0f);
+				GUILayout.Space(10.0f);
 
 				if (GUILayout.Button(new GUIContent("Use Defaults"), GUILayout.ExpandWidth(false))) {
 					DeleteAllPreferences();
